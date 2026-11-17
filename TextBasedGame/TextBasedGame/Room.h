@@ -2,6 +2,8 @@
 
 #include <map>
 #include <string>
+#include <vector>
+#include <fstream>
 
 using namespace std;
 
@@ -13,8 +15,9 @@ public:
 	Room();
 	Room(string roomName);
 	~Room();
-	std::map<string, Room*> m_availableRooms;
+	std::map<string, Room*> m_unlockedRooms;
 	std::map<string, Room*> m_lockedRooms;
+	std::vector<Room*> m_allConnectedRooms;
 	string GetName();
 	virtual void OnEnter();
 	void AddAccessibleRoom(Room& room);
