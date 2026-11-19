@@ -139,13 +139,15 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="EncounterRoom.cpp" />
+    <ClCompile Include="Item.cpp" />
+    <ClCompile Include="Object.cpp" />
     <ClCompile Include="Room.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="EncounterRoom.h" />
+    <ClInclude Include="Item.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="Object.h" />
     <ClInclude Include="Room.h" />
   </ItemGroup>
   <ItemGroup>

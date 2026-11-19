@@ -3,20 +3,56 @@
 
 void ConnectRooms()
 {
-    entranceHallPtr->AddAccessibleRoom(*loungePtr);
-    entranceHallPtr->AddLockedRoom(*testRoomPtr);
+    startingRoom->AddAccessibleRoom(*loungePtr);
+    startingRoom->AddLockedRoom(*testRoomPtr);
+}
+
+void SetUpRoomDescriptions()
+{
+    ifstream descriptionFile("RoomDescriptions.txt");
+    string tempString;
+    getline(descriptionFile, tempString);
+    startingRoom->SetRoomDescription(tempString);
+    getline(descriptionFile, tempString);
+    loungePtr->SetRoomDescription(tempString);
+    getline(descriptionFile, tempString);
+    testRoomPtr->SetRoomDescription(tempString);
+
+    if (descriptionFile.is_open())
+    {
+        descriptionFile.close();
+    }
+}
+
+void SpawnLoot()
+{
+    startingRoom->AddSearchableObject(chest);
+    startingRoom->AddSearchableObject(chest);
+    startingRoom->AddSearchableObject(chest);
+    startingRoom->AddSearchableObject(chest);
+    startingRoom->AddSearchableObject(chest);
+    startingRoom->AddSearchableObject(chest);
+    startingRoom->AddSearchableObject(chest);
+    startingRoom->AddSearchableObject(chest);
+    startingRoom->AddSearchableObject(chest);
 }
 
 void OnStart()
 {
+    for (int i = 0; i < player.MAX_INV_SIZE; i++)
+    {
+        player.m_inventory[i] = new Item();
+    }
     ConnectRooms();
-    cout << "Welcome to game\n-use \'help\' to know what actions you can do\n-Entrance room description-\n";
+    SetUpRoomDescriptions();
+    SpawnLoot();
+    cout << "Welcome to game\n-use \'help\' to know what actions you can do\n";
+    ShowCurrentRoom();
 }
 
 int main()
 {
     OnStart();
-    //std::function<void(string)> tempFuncPtr = EnterRoom;
     string arg1;
     string arg2;
     commands["exit"] = ExitGame;
@@ -24,9 +60,7 @@ int main()
     commands["enter"] = [&arg1]() {EnterRoom(arg1);};
     commands["show_rooms"] = ShowAllConnectedRooms;
     commands["current_room"] = ShowCurrentRoom;
-    ifstream RoomDesc("RoomDescriptions.txt");
-    getline(RoomDesc, arg2);
-    cout << arg2;
+    commands["search"] = SearchObject;
     do
     {
         string inputCommand;
@@ -50,6 +84,31 @@ int main()
     {
         delete allRooms[i];
     }
+    for (Item* item : player.m_inventory)
+    {
+        delete item;
+    }
+}
+
+Item** FindFirstEmptyInvSlot()
+{
+    Item** tempItemPtr = nullptr;
+    for (int i = 0; i < player.MAX_INV_SIZE; i++)
+    {
+        if (player.m_inventory[i]->GetName() == "Empty")
+        {
+            tempItemPtr = &player.m_inventory[i];
+        }
+    }
+    if (tempItemPtr == nullptr)
+    {
+        player.m_bInventoryFull = true;
+    }
+    else
+    {
+        player.m_bInventoryFull = false;
+    }
+    return tempItemPtr;
 }
 
 string TextToLowerCase(string input)
@@ -71,10 +130,11 @@ string TextToLowerCase(string input)
 
 void EnterRoom(std::string roomName)
 {
-    if (currentRoomPtr->m_unlockedRooms[roomName])
+    if (player.m_currentRoomPtr->m_unlockedRooms[roomName])
     {
-        currentRoomPtr = currentRoomPtr->m_unlockedRooms[roomName];
-        cout << "entering: " << currentRoomPtr->GetName();
+        player.m_currentRoomPtr = player.m_currentRoomPtr->m_unlockedRooms[roomName];
+        cout << "entering: " << player.m_currentRoomPtr->GetName() << endl <<
+            player.m_currentRoomPtr->GetRoomDescription() << "\n";
     }
     else
     {
@@ -90,25 +150,57 @@ void ExitGame()
 
 void ShowAllCommands()
 {
-    cout << "Actions are:\n-Help - Tells you all the actions that you can do\n" << 
-        "-Enter RoomName - Enters the room from the name given if it is availabel\n" <<
-        "-Exit - Exit the game\n" <<
-        "-Show_Rooms - Shows all the connected rooms and whether they are locked or unlocked\n" << 
-        "-Current_Room - Shows the current room you are in\n";
+    cout << "Actions are:\n-Help - Tells you all the actions that you can do.\n" << 
+        "-Enter RoomName - Enters the room from the name given if it is availabel.\n" <<
+        "-Exit - Exit the game.\n" <<
+        "-Show_Rooms - Shows all the connected rooms and whether they are locked or unlocked.\n" << 
+        "-Current_Room - Shows the current room you are in.\n" << 
+        "-Search - Shows you all the searchable items in the room you are currently in.\n";
 }
 
 void ShowAllConnectedRooms()
 {
     cout << "All connected rooms are:\n";
-    for (int i = 0; i < currentRoomPtr->m_allConnectedRooms.size(); i++)
+    for (int i = 0; i < player.m_currentRoomPtr->m_allConnectedRooms.size(); i++)
     {
-        cout << i << ". " << currentRoomPtr->m_allConnectedRooms[i]->GetName() << ": " <<
-            ((currentRoomPtr->m_lockedRooms[currentRoomPtr->m_allConnectedRooms[i]->GetName()]) ? ("Locked") : ("Unlocked")) << std::endl;
+        cout << i << ". " << player.m_currentRoomPtr->m_allConnectedRooms[i]->GetName() << ": " <<
+            ((player.m_currentRoomPtr->m_lockedRooms[player.m_currentRoomPtr->m_allConnectedRooms[i]->GetName()]) ? ("Locked") : ("Unlocked")) << std::endl;
     }
 }
 
 void ShowCurrentRoom()
 {
-    cout << "You are in the " << currentRoomPtr->GetName() << endl;
+    cout << "You are in the " << player.m_currentRoomPtr->GetName() << endl << player.m_currentRoomPtr->GetRoomDescription() << "\n";
     //give room description again
+}
+
+void SearchObject()
+{
+    if (player.m_bInventoryFull)
+    {
+        cout << "Your inventory is full.\n";
+        return;
+    }
+    string input;
+    cout << "What do you want to search.\n";
+    for (int i = 0; i < player.m_currentRoomPtr->m_objects.size(); i++)
+    {
+        cout << player.m_currentRoomPtr->m_objects[i].GetName() << ", ";
+    }
+    cout << endl << ">";
+    cin >> input;
+    Item* tempItemPtr = nullptr;
+    for (int i = 0; i < player.m_currentRoomPtr->m_objects.size(); i++)
+    {
+        if (input == player.m_currentRoomPtr->m_objects[i].GetName())
+        {
+            tempItemPtr = player.m_currentRoomPtr->m_objects[i].Search();
+            break;
+        }
+    }
+    if (tempItemPtr->GetName() != "Empty")
+    {
+        *firstEmptyInvSlot = new Item(tempItemPtr);
+        firstEmptyInvSlot = FindFirstEmptyInvSlot();
+    }
 }
