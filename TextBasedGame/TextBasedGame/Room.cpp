@@ -52,5 +52,12 @@ void Room::AddSearchableObject(Object object)
 
 void Room::RemoveSearchableObject(Object& object)
 {
-
+	for (int i = 0; i < m_objects.size(); i++)
+	{
+		if (m_objects[i].GetName() == object.GetName())
+		{
+			m_objects.erase(m_objects.begin() + i);
+			break;
+		}
+	}
 }

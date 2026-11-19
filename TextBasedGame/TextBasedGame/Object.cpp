@@ -4,7 +4,7 @@ Object::Object()
 {
 }
 
-Object::Object(ObjectType type, Item item)
+Object::Object(ObjectType type, Item* item)
 {
 	switch (type)
 	{
@@ -14,17 +14,18 @@ Object::Object(ObjectType type, Item item)
 		break;
 	}
 
-	m_hiddenItem = item;
+	m_hiddenItem = new Item(item);
 }
 
 Object::~Object()
 {
+	delete m_hiddenItem;
 }
 
 Item* Object::Search()
 {
-	std::cout << m_searchText << m_objectName << ((m_hiddenItem.GetName() == "Empty") ? (" and find nothing.\n") : (" and find " + m_hiddenItem.GetName())) << std::endl;
-	return &m_hiddenItem;
+	std::cout << m_searchText << m_objectName << ((m_hiddenItem->GetName() == "Empty") ? (" and find nothing.\n") : (" and find " + m_hiddenItem->GetName())) << std::endl;
+	return m_hiddenItem;
 }
 
 std::string Object::GetName()
