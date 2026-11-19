@@ -3,13 +3,13 @@
 
 enum ItemType
 {
-	DefaultItem, Potion, MagicScroll, Key, Weapon
+	DefaultItemType, PotionType, MagicScrollType, KeyType, WeaponType
 };
 
 class Item
 {
 private:
-	ItemType m_itemType = ItemType::DefaultItem;
+	ItemType m_itemType = ItemType::DefaultItemType;
 protected:
 	std::string m_itemName;
 public:
@@ -18,12 +18,13 @@ public:
 	Item(std::string name);
 	Item(Item* input);
 	std::string GetName();
+	ItemType GetItemType();
 };
 
 class HealthPotion : public Item
 {
 private:
-	ItemType m_itemType = ItemType::Potion;
+	ItemType m_itemType = ItemType::PotionType;
 	int m_healthAmount = 0;
 public:
 	~HealthPotion();
@@ -41,7 +42,7 @@ enum ScrollType
 class MagicScroll : public Item
 {
 private:
-	ItemType m_itemType = ItemType::MagicScroll;
+	ItemType m_itemType = ItemType::MagicScrollType;
 	ScrollType m_scrollType = ScrollType::None;
 	std::string m_scrollTypeText = "";
 public:
@@ -55,14 +56,14 @@ public:
 
 enum KeyColour
 {
-	None, Red, Blue, Purple, Green
+	Blank, Red, Blue, Purple, Green
 };
 
 class Key : public Item
 {
 private:
-	ItemType m_itemType = ItemType::Key;
-	KeyColour m_keyColour = KeyColour::None;
+	ItemType m_itemType = ItemType::KeyType;
+	KeyColour m_keyColour = KeyColour::Blank;
 public:
 	~Key();
 	Key();
@@ -74,7 +75,7 @@ public:
 class Weapon : public Item
 {
 private:
-	ItemType m_itemType = ItemType::Weapon;
+	ItemType m_itemType = ItemType::WeaponType;
 	int m_damage = 0;
 public:
 	~Weapon();

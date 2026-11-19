@@ -26,6 +26,11 @@ std::string Item::GetName()
 	return m_itemName;
 }
 
+ItemType Item::GetItemType()
+{
+	return m_itemType;
+}
+
 //HealthPotion
 HealthPotion::~HealthPotion()
 {

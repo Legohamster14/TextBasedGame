@@ -214,6 +214,22 @@ void ShowInventory()
 {
 	for (int i = 0; i < player.MAX_INV_SIZE; i++)
 	{
-		cout << player.m_inventory[i]->GetName();
+		cout << i << ". " << player.m_inventory[i]->GetName();
+		switch (player.m_inventory[i]->GetItemType())
+		{
+		case ItemType::WeaponType:
+		{
+			Weapon* tempWeaponPtr = (Weapon*)player.m_inventory[i];
+			cout << ", damage: " << tempWeaponPtr->GetWeaponDamage();
+		}
+		break;
+		case ItemType::PotionType:
+		{
+			HealthPotion* tempPotionPtr = (HealthPotion*)player.m_inventory[i];
+			cout << ", health: " << tempPotionPtr->GetHealthAmount();
+		}
+		break;
+		}
+		cout << endl;
 	}
 }
