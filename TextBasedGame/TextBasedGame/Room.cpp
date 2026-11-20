@@ -1,4 +1,5 @@
 #include "Room.h"
+#include <iostream>
 
 Room::Room()
 {
@@ -31,6 +32,8 @@ void Room::SetRoomDescription(string input)
 
 void Room::OnEnter()
 {
+	std::cout << "-Entering: " << m_roomName << std::endl <<
+		m_roomDescription << std::endl;
 }
 
 void Room::AddAccessibleRoom(Room& room)
@@ -45,18 +48,21 @@ void Room::AddLockedRoom(Room& room)
 	m_allConnectedRooms.push_back(&room);
 }
 
-void Room::AddSearchableObject(Object object)
+void Room::AddSearchableObject(Object& object)
 {
-	m_objects.push_back(object);
+	//Object* tempPtr = &object;
+	m_objects.push_back(new Object(&object));
 }
 
 void Room::RemoveSearchableObject(Object& object)
 {
 	for (int i = 0; i < m_objects.size(); i++)
 	{
-		if (m_objects[i].GetName() == object.GetName())
+		if (m_objects[i]->GetName() == object.GetName())
 		{
+			Object* tempPtr = m_objects[i];
 			m_objects.erase(m_objects.begin() + i);
+			delete tempPtr;
 			break;
 		}
 	}

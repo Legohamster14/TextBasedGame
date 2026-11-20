@@ -8,9 +8,9 @@ enum ItemType
 
 class Item
 {
-private:
-	ItemType m_itemType = ItemType::DefaultItemType;
+//private:
 protected:
+	ItemType m_itemType = ItemType::DefaultItemType;
 	std::string m_itemName;
 public:
 	~Item();
@@ -24,7 +24,6 @@ public:
 class HealthPotion : public Item
 {
 private:
-	ItemType m_itemType = ItemType::PotionType;
 	int m_healthAmount = 0;
 public:
 	~HealthPotion();
@@ -42,7 +41,6 @@ enum ScrollType
 class MagicScroll : public Item
 {
 private:
-	ItemType m_itemType = ItemType::MagicScrollType;
 	ScrollType m_scrollType = ScrollType::None;
 	std::string m_scrollTypeText = "";
 public:
@@ -62,7 +60,6 @@ enum KeyColour
 class Key : public Item
 {
 private:
-	ItemType m_itemType = ItemType::KeyType;
 	KeyColour m_keyColour = KeyColour::Blank;
 public:
 	~Key();
@@ -75,7 +72,6 @@ public:
 class Weapon : public Item
 {
 private:
-	ItemType m_itemType = ItemType::WeaponType;
 	int m_damage = 0;
 public:
 	~Weapon();

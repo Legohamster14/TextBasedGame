@@ -19,6 +19,7 @@ Item::Item(std::string name)
 Item::Item(Item* input)
 {
 	m_itemName = input->m_itemName;
+	m_itemType = input->m_itemType;
 }
 
 std::string Item::GetName()
@@ -39,17 +40,20 @@ HealthPotion::~HealthPotion()
 HealthPotion::HealthPotion() : Item()
 {
 	m_itemName = "Empty";
+	m_itemType = ItemType::PotionType;
 }
 
 HealthPotion::HealthPotion(HealthPotion* input) : Item(input)
 {
 	m_healthAmount = input->m_healthAmount;
+	m_itemType = ItemType::PotionType;
 }
 
 HealthPotion::HealthPotion(std::string name, int health) : Item(name)
 {
 	m_itemName = name;
 	m_healthAmount = health;
+	m_itemType = ItemType::PotionType;
 }
 
 int HealthPotion::GetHealthAmount()
@@ -65,10 +69,12 @@ MagicScroll::~MagicScroll()
 MagicScroll::MagicScroll()
 {
 	m_itemName = "Empty";
+	m_itemType = ItemType::MagicScrollType;
 }
 
 MagicScroll::MagicScroll(ScrollType type)
 {
+	m_itemType = ItemType::MagicScrollType;
 	switch (type)
 	{
 	case Fireball:
@@ -96,6 +102,7 @@ MagicScroll::MagicScroll(ScrollType type)
 
 MagicScroll::MagicScroll(MagicScroll* input)
 {
+	m_itemType = ItemType::MagicScrollType;
 	m_itemName = input->m_itemName;
 	m_scrollType = input->m_scrollType;
 	m_scrollTypeText = input->m_scrollTypeText;
@@ -119,10 +126,12 @@ Key::~Key()
 Key::Key()
 {
 	m_itemName = "Empty";
+	m_itemType = ItemType::KeyType;
 }
 
 Key::Key(KeyColour colour)
 {
+	m_itemType = ItemType::KeyType;
 	switch (colour)
 	{
 	case Red:
@@ -146,6 +155,7 @@ Key::Key(KeyColour colour)
 
 Key::Key(Key* input)
 {
+	m_itemType = ItemType::KeyType;
 	m_itemName = input->m_itemName;
 	m_keyColour = input->m_keyColour;
 }
@@ -163,16 +173,19 @@ Weapon::~Weapon()
 Weapon::Weapon()
 {
 	m_itemName = "Empty";
+	m_itemType = ItemType::WeaponType;
 }
 
 Weapon::Weapon(std::string name, int damage)
 {
+	m_itemType = ItemType::WeaponType;
 	m_itemName = name;
 	m_damage = damage;
 }
 
 Weapon::Weapon(Weapon* input)
 {
+	m_itemType = ItemType::WeaponType;
 	m_itemName = input->m_itemName;
 	m_damage = input->m_damage;
 }

@@ -3,8 +3,9 @@
 
 void ConnectRooms()
 {
-	startingRoom->AddAccessibleRoom(*loungePtr);
-	startingRoom->AddLockedRoom(*testRoomPtr);
+	startingRoomPtr->AddAccessibleRoom(*loungePtr);
+	startingRoomPtr->AddLockedRoom(*testRoomPtr);
+	loungePtr->AddAccessibleRoom(*startingRoomPtr);
 }
 
 void SetUpRoomDescriptions()
@@ -12,7 +13,7 @@ void SetUpRoomDescriptions()
 	ifstream descriptionFile("RoomDescriptions.txt");
 	string tempString;
 	getline(descriptionFile, tempString);
-	startingRoom->SetRoomDescription(tempString);
+	startingRoomPtr->SetRoomDescription(tempString);
 	getline(descriptionFile, tempString);
 	loungePtr->SetRoomDescription(tempString);
 	getline(descriptionFile, tempString);
@@ -26,7 +27,8 @@ void SetUpRoomDescriptions()
 
 void SpawnLoot()
 {
-
+	startingRoomPtr->AddSearchableObject(chest);
+	startingRoomPtr->AddSearchableObject(cupboard);
 }
 
 void OnStart()
@@ -44,6 +46,7 @@ void OnStart()
 
 int main()
 {
+	//Object chest = Object(ObjectType::Chest, new Weapon(sword));
 	OnStart();
 	string arg1;
 	string arg2;
@@ -69,7 +72,7 @@ int main()
 		}
 		else
 		{
-			cout << "invalid function call\n";
+			cout << "\'" << inputCommand << "\' isn't a valid action.\n";
 		}
 
 	} while (!bPlayerQuitting);
@@ -92,6 +95,7 @@ Item** FindFirstEmptyInvSlot()
 		if (player.m_inventory[i]->GetName() == "Empty")
 		{
 			tempItemPtr = &player.m_inventory[i];
+			break;
 		}
 	}
 	if (tempItemPtr == nullptr)
@@ -127,8 +131,9 @@ void EnterRoom(std::string roomName)
 	if (player.m_currentRoomPtr->m_unlockedRooms[roomName])
 	{
 		player.m_currentRoomPtr = player.m_currentRoomPtr->m_unlockedRooms[roomName];
-		cout << "entering: " << player.m_currentRoomPtr->GetName() << endl <<
-			player.m_currentRoomPtr->GetRoomDescription() << "\n";
+		player.m_currentRoomPtr->OnEnter();
+		//cout << "entering: " << player.m_currentRoomPtr->GetName() << endl <<
+		//	player.m_currentRoomPtr->GetRoomDescription() << "\n";
 	}
 	else
 	{
@@ -154,7 +159,7 @@ void ShowAllCommands()
 
 void ShowAllConnectedRooms()
 {
-	cout << "All connected rooms are:\n";
+	cout << "-All connected rooms are:\n";
 	for (int i = 0; i < player.m_currentRoomPtr->m_allConnectedRooms.size(); i++)
 	{
 		cout << i << ". " << player.m_currentRoomPtr->m_allConnectedRooms[i]->GetName() << ": " <<
@@ -164,7 +169,7 @@ void ShowAllConnectedRooms()
 
 void ShowCurrentRoom()
 {
-	cout << "You are in the " << player.m_currentRoomPtr->GetName() << endl << player.m_currentRoomPtr->GetRoomDescription() << "\n";
+	cout << "-You are in the " << player.m_currentRoomPtr->GetName() << endl << player.m_currentRoomPtr->GetRoomDescription() << "\n";
 	//give room description again
 }
 
@@ -172,36 +177,77 @@ void SearchObject()
 {
 	if (player.m_bInventoryFull)
 	{
-		cout << "Your inventory is full.\n";
+		cout << "-Your inventory is full.\n";
 		return;
 	}
 	if (player.m_currentRoomPtr->m_objects.size() < 1)
 	{
-		cout << "There are no objects to search in this room\n";
+		cout << "-There are no objects to search in this room\n";
 		return;
 	}
 	string input;
-	cout << "What do you want to search.\n";
+	cout << "-What do you want to search.\n";
 	for (int i = 0; i < player.m_currentRoomPtr->m_objects.size(); i++)
 	{
-		cout << player.m_currentRoomPtr->m_objects[i].GetName() << ((i == (player.m_currentRoomPtr->m_objects.size() - 1)) ? ("") : (", "));
+		cout << player.m_currentRoomPtr->m_objects[i]->GetName() << ((i == (player.m_currentRoomPtr->m_objects.size() - 1)) ? ("") : (", "));
 	}
 	cout << endl << ">";
 	cin >> input;
 	Item* tempItemPtr = nullptr;
+	int searchedObjectIteration = -1;
 	for (int i = 0; i < player.m_currentRoomPtr->m_objects.size(); i++)
 	{
-		if (input == player.m_currentRoomPtr->m_objects[i].GetName())
+		if (input == player.m_currentRoomPtr->m_objects[i]->GetName())
 		{
-			tempItemPtr = player.m_currentRoomPtr->m_objects[i].Search();
-			player.m_currentRoomPtr->RemoveSearchableObject(player.m_currentRoomPtr->m_objects[i]);
+			tempItemPtr = player.m_currentRoomPtr->m_objects[i]->Search();
+			searchedObjectIteration = i;
+			//player.m_currentRoomPtr->RemoveSearchableObject(*player.m_currentRoomPtr->m_objects[i]);
 			break;
 		}
 	}
-	if (tempItemPtr->GetName() != "Empty")
+	if (tempItemPtr && tempItemPtr->GetName() != "Empty")
 	{
-		*firstEmptyInvSlot = new Item(tempItemPtr);
+		switch (tempItemPtr->GetItemType())
+		{
+		case ItemType::DefaultItemType:
+		{
+			*firstEmptyInvSlot = new Item(tempItemPtr);
+		}
+		break;
+		case ItemType::PotionType:
+		{
+			HealthPotion* tempPotionPtr = (HealthPotion*)tempItemPtr;
+			*firstEmptyInvSlot = new HealthPotion(tempPotionPtr);
+		}
+		break;
+		case ItemType::MagicScrollType:
+		{
+			MagicScroll* tempMagicScrollPtr = (MagicScroll*)tempItemPtr;
+			*firstEmptyInvSlot = new MagicScroll(tempMagicScrollPtr);
+		}
+		break;
+		case ItemType::KeyType:
+		{
+			Key* tempKeyPtr = (Key*)tempItemPtr;
+			*firstEmptyInvSlot = new Key(tempKeyPtr);
+		}
+		break;
+		case ItemType::WeaponType:
+		{
+			Weapon* tempWeaponPtr = (Weapon*)tempItemPtr;
+			*firstEmptyInvSlot = new Weapon(tempWeaponPtr);
+		}
+		break;
+		}
 		firstEmptyInvSlot = FindFirstEmptyInvSlot();
+	}
+	if (searchedObjectIteration > -1)
+	{
+		player.m_currentRoomPtr->RemoveSearchableObject(*player.m_currentRoomPtr->m_objects[searchedObjectIteration]);
+	}
+	else
+	{
+		cout << "\'" << input << "\' isn't a valid object.\n";
 	}
 }
 
@@ -214,7 +260,7 @@ void ShowInventory()
 {
 	for (int i = 0; i < player.MAX_INV_SIZE; i++)
 	{
-		cout << i << ". " << player.m_inventory[i]->GetName();
+		cout << "Slot " << i + 1 << ". " << player.m_inventory[i]->GetName();
 		switch (player.m_inventory[i]->GetItemType())
 		{
 		case ItemType::WeaponType:

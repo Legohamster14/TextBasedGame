@@ -6,10 +6,10 @@
 bool bPlayerQuitting = false;
 
 
-Room* startingRoom = new Room("Starting_Room");
+Room* startingRoomPtr = new Room("Starting_Room");
 Room* loungePtr = new Room("Space_Room");
 Room* testRoomPtr = new Room("Locked_room");
-Room* allRooms[] = { loungePtr, startingRoom, testRoomPtr };
+Room* allRooms[] = { loungePtr, startingRoomPtr, testRoomPtr };
 
 struct Player
 {
@@ -18,14 +18,12 @@ struct Player
 	bool m_bInventoryFull = false;
 	bool m_bInEncounter = false;
 	const int8_t m_Health = 100;
-	Room* m_currentRoomPtr = startingRoom;
+	Room* m_currentRoomPtr = startingRoomPtr;
 };
 Player player;
 Item** firstEmptyInvSlot = &player.m_inventory[0];
 Item** FindFirstEmptyInvSlot();
-
 string TextToLowerCase(string input);
-//Object chest = Object(ObjectType::Chest, Item("testItem"));
 
 //commands -----
 std::map <string, std::function<void()>> commands;
@@ -39,5 +37,9 @@ void UseItem();
 void ShowInventory();
 
 //Item types ------
-HealthPotion* lesserPotion = new HealthPotion();
-Item* test = lesserPotion;
+HealthPotion* lesserPotion = new HealthPotion("Lesser_HealthPotion", 25);
+Weapon* sword = new Weapon("Sword", 25);
+
+//Object types -----
+Object chest = Object(ObjectType::Chest, sword);
+Object cupboard = Object(ObjectType::Cupboard, lesserPotion);

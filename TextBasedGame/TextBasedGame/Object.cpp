@@ -2,6 +2,7 @@
 
 Object::Object()
 {
+	m_hiddenItem = new Item();
 }
 
 Object::Object(ObjectType type, Item* item)
@@ -12,9 +13,53 @@ Object::Object(ObjectType type, Item* item)
 		m_objectName = "Chest";
 		m_searchText = "You look in ";
 		break;
+	case ObjectType::Cupboard:
+		m_objectName = "Cupboard";
+		m_searchText = "You look in ";
+		break;
+	}
+	switch (item->GetItemType())
+	{
+	case ItemType::DefaultItemType:
+	{
+		m_hiddenItem = new Item(item);
+	}
+	break;
+	case ItemType::PotionType:
+	{
+		HealthPotion* tempPotionPtr = (HealthPotion*)item;
+		m_hiddenItem = new HealthPotion(tempPotionPtr);
+	}
+	break;
+	case ItemType::MagicScrollType:
+	{
+		MagicScroll* tempMagicScrollPtr = (MagicScroll*)item;
+		m_hiddenItem = new MagicScroll(tempMagicScrollPtr);
+	}
+	break;
+	case ItemType::KeyType:
+	{
+		Key* tempKeyPtr = (Key*)item;
+		m_hiddenItem = new Key(tempKeyPtr);
+	}
+	break;
+	case ItemType::WeaponType:
+	{
+		Weapon* tempWeaponPtr = (Weapon*)item;
+		m_hiddenItem = new Weapon(tempWeaponPtr);
+	}
+	break;
 	}
 
-	m_hiddenItem = new Item(item);
+
+	//m_hiddenItem = new Item(item);
+}
+
+Object::Object(Object* object)
+{
+	m_objectName = object->m_objectName;
+	m_searchText = object->m_searchText;
+	m_hiddenItem = object->m_hiddenItem;
 }
 
 Object::~Object()
@@ -24,7 +69,7 @@ Object::~Object()
 
 Item* Object::Search()
 {
-	std::cout << m_searchText << m_objectName << ((m_hiddenItem->GetName() == "Empty") ? (" and find nothing.\n") : (" and find " + m_hiddenItem->GetName())) << std::endl;
+	std::cout << '-' << m_searchText << m_objectName << ((m_hiddenItem->GetName() == "Empty") ? (" and find nothing.\n") : (" and find " + m_hiddenItem->GetName())) << std::endl;
 	return m_hiddenItem;
 }
 
