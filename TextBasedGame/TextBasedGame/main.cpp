@@ -46,13 +46,12 @@ void OnStart()
 
 int main()
 {
-	//Object chest = Object(ObjectType::Chest, new Weapon(sword));
 	OnStart();
 	string arg1;
 	string arg2;
 	commands["exit"] = ExitGame;
 	commands["help"] = ShowAllCommands;
-	commands["enter"] = [&arg1]() {EnterRoom(arg1);};
+	commands["enter"] = EnterRoom;
 	commands["show_rooms"] = ShowAllConnectedRooms;
 	commands["current_room"] = ShowCurrentRoom;
 	commands["search"] = SearchObject;
@@ -64,7 +63,6 @@ int main()
 		cout << '>';
 		cin >> inputCommand;
 		cin >> arg1;
-		//cin >> arg2;
 		inputCommand = TextToLowerCase(inputCommand);
 		if (commands[inputCommand])
 		{
@@ -126,18 +124,20 @@ string TextToLowerCase(string input)
 	return tempString;
 }
 
-void EnterRoom(std::string roomName)
+void EnterRoom()
 {
-	if (player.m_currentRoomPtr->m_unlockedRooms[roomName])
+	ShowAllConnectedRooms();
+	cout << "Which room would you like to enter?\n>";
+	string inputRoom;
+	cin >> inputRoom;
+	if (player.m_currentRoomPtr->m_unlockedRooms[inputRoom])
 	{
-		player.m_currentRoomPtr = player.m_currentRoomPtr->m_unlockedRooms[roomName];
+		player.m_currentRoomPtr = player.m_currentRoomPtr->m_unlockedRooms[inputRoom];
 		player.m_currentRoomPtr->OnEnter();
-		//cout << "entering: " << player.m_currentRoomPtr->GetName() << endl <<
-		//	player.m_currentRoomPtr->GetRoomDescription() << "\n";
 	}
 	else
 	{
-		cout << roomName << " is an unavailable room.\n";
+		cout << inputRoom << " is an unavailable room.\n";
 	}
 }
 
@@ -170,7 +170,6 @@ void ShowAllConnectedRooms()
 void ShowCurrentRoom()
 {
 	cout << "-You are in the " << player.m_currentRoomPtr->GetName() << endl << player.m_currentRoomPtr->GetRoomDescription() << "\n";
-	//give room description again
 }
 
 void SearchObject()
@@ -201,7 +200,6 @@ void SearchObject()
 		{
 			tempItemPtr = player.m_currentRoomPtr->m_objects[i]->Search();
 			searchedObjectIteration = i;
-			//player.m_currentRoomPtr->RemoveSearchableObject(*player.m_currentRoomPtr->m_objects[i]);
 			break;
 		}
 	}

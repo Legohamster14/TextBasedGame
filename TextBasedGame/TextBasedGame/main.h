@@ -27,7 +27,7 @@ string TextToLowerCase(string input);
 
 //commands -----
 std::map <string, std::function<void()>> commands;
-void EnterRoom(std::string roomName);
+void EnterRoom();
 void ExitGame();
 void ShowAllCommands();
 void ShowAllConnectedRooms();
