@@ -13,6 +13,10 @@ Room::Room(string roomName)
 
 Room::~Room()
 {
+	//for (int i = 0; i < m_objects.size(); i++)
+	//{
+	//	m_objects.pop_back();
+	//}
 }
 
 string Room::GetName()
@@ -50,8 +54,8 @@ void Room::AddLockedRoom(Room& room)
 
 void Room::AddSearchableObject(Object& object)
 {
-	//Object* tempPtr = &object;
-	m_objects.push_back(new Object(&object));
+	Object* tempPtr = new Object(&object);
+	m_objects.push_back(make_unique<Object>(tempPtr));
 }
 
 void Room::RemoveSearchableObject(Object& object)
@@ -60,10 +64,22 @@ void Room::RemoveSearchableObject(Object& object)
 	{
 		if (m_objects[i]->GetName() == object.GetName())
 		{
-			Object* tempPtr = m_objects[i];
+			m_objects[i]->DeleteHiddenItem();
 			m_objects.erase(m_objects.begin() + i);
-			delete tempPtr;
 			break;
 		}
 	}
+}
+
+void Room::DisplayAllLockedRooms()
+{
+	for (int i = 0; i < m_allConnectedRooms.size(); i++)
+	{
+		std::cout << (m_lockedRooms[m_allConnectedRooms[i]->GetName()] ? (to_string(i) + std::string(". ") + m_allConnectedRooms[i]->GetName() + std::string("\n")) : (""));
+	}
+}
+
+bool Room::CanUnlockRoom(KeyColour colour)
+{
+	return false;
 }

@@ -1,4 +1,5 @@
 #include "Object.h"
+#include <iostream>
 
 Object::Object()
 {
@@ -64,7 +65,7 @@ Object::Object(Object* object)
 
 Object::~Object()
 {
-	delete m_hiddenItem;
+	//delete m_hiddenItem;
 }
 
 Item* Object::Search()
@@ -76,4 +77,9 @@ Item* Object::Search()
 std::string Object::GetName()
 {
 	return m_objectName;
+}
+
+void Object::DeleteHiddenItem()
+{
+	delete m_hiddenItem;
 }

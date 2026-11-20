@@ -6,18 +6,20 @@
 bool bPlayerQuitting = false;
 
 
+//Rooms ------
 Room* startingRoomPtr = new Room("Starting_Room");
 Room* loungePtr = new Room("Space_Room");
 Room* testRoomPtr = new Room("Locked_room");
 Room* allRooms[] = { loungePtr, startingRoomPtr, testRoomPtr };
 
+//Player
 struct Player
 {
 	static const uint8_t MAX_INV_SIZE = 8;
 	Item* m_inventory[MAX_INV_SIZE] = {};
 	bool m_bInventoryFull = false;
 	bool m_bInEncounter = false;
-	const int8_t m_Health = 100;
+	int m_health = 100;
 	Room* m_currentRoomPtr = startingRoomPtr;
 };
 Player player;
@@ -39,7 +41,10 @@ void ShowInventory();
 //Item types ------
 HealthPotion* lesserPotion = new HealthPotion("Lesser_HealthPotion", 25);
 Weapon* sword = new Weapon("Sword", 25);
+Key* blueKey = new Key(KeyColour::Blue);
+Item* allItemTypes[] = { sword, lesserPotion, blueKey };
 
 //Object types -----
-Object chest = Object(ObjectType::Chest, sword);
-Object cupboard = Object(ObjectType::Cupboard, lesserPotion);
+Object* chest = new Object(ObjectType::Chest, sword);
+Object* cupboard = new Object(ObjectType::Cupboard, blueKey);
+Object* allObjects[] = {chest, cupboard};

@@ -13,6 +13,7 @@ class Room
 protected:
 	std::string m_roomName;
 	string m_roomDescription;
+	KeyColour m_keyToUnlock;
 public:
 	Room();
 	Room(string roomName);
@@ -20,7 +21,7 @@ public:
 	std::map<string, Room*> m_unlockedRooms;
 	std::map<string, Room*> m_lockedRooms;
 	std::vector<Room*> m_allConnectedRooms;
-	std::vector<Object*> m_objects;
+	std::vector<std::unique_ptr<Object>> m_objects;
 	string GetName();
 	string GetRoomDescription();
 	void SetRoomDescription(string input);
@@ -29,5 +30,7 @@ public:
 	void AddLockedRoom(Room& room);
 	void AddSearchableObject(Object& object);
 	void RemoveSearchableObject(Object& object);
+	void DisplayAllLockedRooms();
+	bool CanUnlockRoom(KeyColour colour);
 };
 

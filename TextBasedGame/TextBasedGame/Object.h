@@ -1,6 +1,5 @@
 #pragma once
 #include "Item.h"
-#include <iostream>
 
 enum ObjectType
 {
@@ -12,7 +11,7 @@ class Object
 private:
 	std::string m_objectName;
 	std::string m_searchText;
-	Item* m_hiddenItem;
+	Item* m_hiddenItem = nullptr;
 public:
 	Object();
 	Object(ObjectType type, Item* item = new Item());
@@ -20,6 +19,7 @@ public:
 	~Object();
 	Item* Search();
 	std::string GetName();
+	void DeleteHiddenItem();
 };
 
 //Object table;

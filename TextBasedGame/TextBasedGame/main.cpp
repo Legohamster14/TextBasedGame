@@ -27,8 +27,8 @@ void SetUpRoomDescriptions()
 
 void SpawnLoot()
 {
-	startingRoomPtr->AddSearchableObject(chest);
-	startingRoomPtr->AddSearchableObject(cupboard);
+	startingRoomPtr->AddSearchableObject(*chest);
+	startingRoomPtr->AddSearchableObject(*cupboard);
 }
 
 void OnStart()
@@ -47,8 +47,6 @@ void OnStart()
 int main()
 {
 	OnStart();
-	string arg1;
-	string arg2;
 	commands["exit"] = ExitGame;
 	commands["help"] = ShowAllCommands;
 	commands["enter"] = EnterRoom;
@@ -62,7 +60,6 @@ int main()
 		string inputCommand;
 		cout << '>';
 		cin >> inputCommand;
-		cin >> arg1;
 		inputCommand = TextToLowerCase(inputCommand);
 		if (commands[inputCommand])
 		{
@@ -75,6 +72,10 @@ int main()
 
 	} while (!bPlayerQuitting);
 
+	for (int i = 0; i < (sizeof(allObjects) / sizeof(Object*)); i++)
+	{
+		delete allObjects[i];
+	}
 	for (int i = 0; i < (sizeof(allRooms) / sizeof(Room*)); i++)
 	{
 		delete allRooms[i];
@@ -82,6 +83,10 @@ int main()
 	for (Item* item : player.m_inventory)
 	{
 		delete item;
+	}
+	for (int i = 0; i < (sizeof(allItemTypes) / sizeof(Item*)); i++)
+	{
+		delete allItemTypes[i];
 	}
 }
 
@@ -251,7 +256,63 @@ void SearchObject()
 
 void UseItem()
 {
-
+	cout << "This is what's in your inventory: " << endl;
+	ShowInventory();
+	cout << "What would you like to use:\n>";
+	string inputItem;
+	cin >> inputItem;
+	Item* itemInUse = nullptr;
+	for (int i = 0; i < player.MAX_INV_SIZE; i++)
+	{
+		if (player.m_inventory[i]->GetName() == inputItem)
+		{
+			itemInUse = player.m_inventory[i];
+			break;
+		}
+	}
+	if (!itemInUse)
+	{
+		cout << "\'" << inputItem << "\' is not in you inventory.\n";
+		return;
+	}
+	switch (itemInUse->GetItemType())
+	{
+	case ItemType::DefaultItemType:
+	{
+		cout << "You cannot use this item.\n";
+		return;
+		break;
+	}
+	case ItemType::PotionType:
+	{
+		HealthPotion* tempPotionPtr = (HealthPotion*)itemInUse;
+		cout << "You gain " << tempPotionPtr->GetHealthAmount() << " health";
+		player.m_health += tempPotionPtr->GetHealthAmount();
+	}
+	break;
+	case ItemType::MagicScrollType:
+	{
+		if (player.m_bInEncounter)
+		{
+			//MagicScroll* tempMagicScrollPtr = ()
+		}
+	}
+	break;
+	case ItemType::KeyType:
+	{
+		Key* tempKeyPtr = (Key*)itemInUse;
+		cout << "Which room would you like to unlock:\n";
+		player.m_currentRoomPtr->DisplayAllLockedRooms();
+		string inputRoom;
+		cin >> inputRoom;
+		if (player.m_currentRoomPtr->m_lockedRooms[inputRoom] && 
+			)
+		{
+			
+		}
+	}
+	break;
+	}
 }
 
 void ShowInventory()
