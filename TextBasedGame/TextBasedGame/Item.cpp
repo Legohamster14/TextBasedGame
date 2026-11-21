@@ -85,12 +85,12 @@ MagicScroll::MagicScroll(ScrollType type)
 	case Lightning:
 		m_itemName = "Lightning_Scroll";
 		m_scrollType = ScrollType::Lightning;
-		m_scrollTypeText = "Lightning";
+		m_scrollTypeText = "Lightning Bolt";
 		break;
 	case IceSpike:
 		m_itemName = "IceSpike_Scroll";
 		m_scrollType = ScrollType::IceSpike;
-		m_scrollTypeText = "IceSpike";
+		m_scrollTypeText = "Ice Spike";
 		break;
 	case Earthquake:
 		m_itemName = "Earthquake_Scroll";

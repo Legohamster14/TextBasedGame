@@ -12,6 +12,7 @@ Room* loungePtr = new Room("Lounge");
 Room* testRoomPtr = new Room("Locked_room");
 EncounterRoom* testRatRoom = new EncounterRoom("Rat_Nest", 3);
 Room* allRooms[] = { loungePtr, startingRoomPtr, testRoomPtr };
+EncounterRoom* allEncounterRooms[] = { testRatRoom };
 
 //Player
 struct Player
@@ -22,11 +23,14 @@ struct Player
 	bool m_bInEncounter = false;
 	int m_health = 100;
 	Room* m_currentRoomPtr = startingRoomPtr;
+	int m_fistDamage = 5;
 };
 Player player;
 Item** firstEmptyInvSlot = &player.m_inventory[0];
 Item** FindFirstEmptyInvSlot();
+
 string TextToLowerCase(string input);
+bool CompletedAllEncounters();
 
 //commands -----
 std::map <string, std::function<void()>> commands;
@@ -38,6 +42,7 @@ void ShowCurrentRoom();
 void SearchObject();
 void UseItem();
 void ShowInventory();
+void ShowPlayerStats();
 
 //Item types ------
 HealthPotion* lesserPotion = new HealthPotion("Lesser_HealthPotion", 25);

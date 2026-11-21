@@ -14,16 +14,24 @@ void SetUpRoomDescriptions()
 	ifstream descriptionFile("RoomDescriptions.txt");
 	string tempString;
 	getline(descriptionFile, tempString);
+	if (!descriptionFile.is_open())
+	{
+		cout << "ERROR: \'RoomDescriptions.txt\' is not open.\n";
+		return;
+	}
+	if (!descriptionFile.good())
+	{
+		cout << "ERROR: \'RoomDescriptions.txt\' is not readable.\n";
+		descriptionFile.close();
+		return;
+	}
 	startingRoomPtr->SetRoomDescription(tempString);
 	getline(descriptionFile, tempString);
 	loungePtr->SetRoomDescription(tempString);
 	getline(descriptionFile, tempString);
 	testRoomPtr->SetRoomDescription(tempString);
 
-	if (descriptionFile.is_open())
-	{
-		descriptionFile.close();
-	}
+	descriptionFile.close();
 }
 
 void SpawnLoot()
@@ -34,22 +42,7 @@ void SpawnLoot()
 
 void OnStart()
 {
-	for (int i = 2; i < player.MAX_INV_SIZE; i++)
-	{
-		player.m_inventory[i] = new Item();
-	}
-	player.m_inventory[0] = new Weapon(sword);
-	player.m_inventory[1] = new MagicScroll(fireballScroll);
-	ConnectRooms();
-	SetUpRoomDescriptions();
-	SpawnLoot();
-	cout << "Welcome to game\n-use \'help\' to know what actions you can do\n";
-	ShowCurrentRoom();
-}
-
-int main()
-{
-	OnStart();
+	cout << "\x1b]0; " << "The Ratungeon" << "\x1b\\";
 	commands["exit"] = ExitGame;
 	commands["help"] = ShowAllCommands;
 	commands["enter"] = EnterRoom;
@@ -58,6 +51,23 @@ int main()
 	commands["search"] = SearchObject;
 	commands["use"] = UseItem;
 	commands["inventory"] = ShowInventory;
+	commands["stats"] = ShowPlayerStats;
+	for (int i = 0; i < player.MAX_INV_SIZE; i++)
+	{
+		player.m_inventory[i] = new Item();
+	}
+	ConnectRooms();
+	SetUpRoomDescriptions();
+	SpawnLoot();
+	cout << "Welcome to The Ratungeon!\n" << 
+		"Goal kill all rats.\n" <<
+		"-use \'help\' to know what actions you can do.\n";
+	ShowCurrentRoom();
+}
+
+int main()
+{
+	OnStart();
 	do
 	{
 		string inputCommand;
@@ -72,7 +82,17 @@ int main()
 		{
 			cout << "\'" << inputCommand << "\' isn't a valid action.\n";
 		}
-
+		if (CompletedAllEncounters())
+		{
+			cout << "You have defeated all the rats in The Ratungeon.\nDo you want to continue playing? (y\\n)\n>";
+			string input;
+			cin >> input;
+			if (input == "no" | input == "n")
+			{
+				cout << "Thank you for playing The Ratungeon.\n";
+				bPlayerQuitting = true;
+			}
+		}
 	} while (!bPlayerQuitting);
 
 	for (int i = 0; i < (sizeof(allObjects) / sizeof(Object*)); i++)
@@ -132,6 +152,20 @@ string TextToLowerCase(string input)
 	return tempString;
 }
 
+bool CompletedAllEncounters()
+{
+	bool bHasCompletedAllEncounters = true;
+	for (int i = 0; i < sizeof(allEncounterRooms) / sizeof(EncounterRoom*); i++)
+	{
+		if (!allEncounterRooms[i]->GetEncounterCompleted())
+		{
+			bHasCompletedAllEncounters = false;
+			break;
+		}
+	}
+	return bHasCompletedAllEncounters;
+}
+
 void EnterRoom()
 {
 	if (player.m_bInEncounter)
@@ -147,9 +181,13 @@ void EnterRoom()
 		player.m_currentRoomPtr = player.m_currentRoomPtr->m_unlockedRooms[inputRoom];
 		player.m_currentRoomPtr->OnEnter();
 	}
+	else if (player.m_currentRoomPtr->m_lockedRooms[inputRoom])
+	{
+		cout << "\'" << inputRoom << "\' is currently locked, you need a " << player.m_currentRoomPtr->m_lockedRooms[inputRoom]->GetKeyColourText() << " key to unlock this room.\n";
+	}
 	else
 	{
-		cout << inputRoom << " is an unavailable room.\n";
+		cout << "\'" << inputRoom << "\' is an unavailable room.\n";
 		return;
 	}
 	if ((EncounterRoom*)player.m_currentRoomPtr)
@@ -167,13 +205,14 @@ void ExitGame()
 void ShowAllCommands()
 {
 	cout << "Actions are:\n-Help - Tells you all the actions that you can do.\n" << 
-		"-Enter RoomName - Enters the room from the name given if it is availabel.\n" <<
+		"-Enter - Show you all the rooms an you can pick which one to enter, although it must be .\n" <<
 		"-Exit - Exit the game.\n" <<
 		"-Show_Rooms - Shows all the connected rooms and whether they are locked or unlocked.\n" << 
 		"-Current_Room - Shows the current room you are in.\n" << 
 		"-Search - Shows you all the searchable objects in the room you are currently in.\n" << 
-		"-Inventory - Displays all the items in your inventory and any stats\n" <<
-		"-Use - Uses an item of your choosing from your invnetory\n";
+		"-Inventory - Displays all the items in your inventory and any stats.\n" <<
+		"-Use - Uses an item of your choosing from your invnetory. You can also \'Punch\' enemies if you haven\'t got any weapons\n" <<
+		"-Stats - Shows your health, what is in your inventory and whether you are in combat.\n";
 }
 
 void ShowAllConnectedRooms()
@@ -274,7 +313,7 @@ void SearchObject()
 
 void UseItem()
 {
-	cout << "This is what's in your inventory: " << endl;
+	cout << "-This is what's in your inventory: " << endl;
 	ShowInventory();
 	cout << "What would you like to use:\n>";
 	string inputItem;
@@ -311,18 +350,24 @@ void UseItem()
 		player.m_inventory[itemPosInInv] = new Item();
 		firstEmptyInvSlot = FindFirstEmptyInvSlot();
 	}
+	return;
 	break;
 	case ItemType::MagicScrollType:
 	{
 		if (player.m_bInEncounter)
 		{
 			MagicScroll* tempMagicScrollPtr = (MagicScroll*)player.m_inventory[itemPosInInv];
+			EncounterRoom* tempEncounterRoomPtr = (EncounterRoom*)player.m_currentRoomPtr;
+			cout << "-You use your " << tempMagicScrollPtr->GetName() << " to send a " << tempMagicScrollPtr->GetScrollTypeText() << " at the group of rats.\n";
+			tempEncounterRoomPtr->CompleteEncounter();
+			player.m_bInEncounter = false;
 		}
 		else
 		{
 			cout << "-You can only use magic scrolls in combat\n";
 		}
 	}
+	return;
 	break;
 	case ItemType::KeyType:
 	{
@@ -336,13 +381,18 @@ void UseItem()
 			player.m_currentRoomPtr->CanUnlockRoom(*player.m_currentRoomPtr->m_lockedRooms[inputRoom], tempKeyPtr->GetKeyColour()))
 		{
 			player.m_currentRoomPtr->UnlockRoom(*player.m_currentRoomPtr->m_lockedRooms[inputRoom]);
-			cout << "You have successfully unlocked " << player.m_currentRoomPtr->m_unlockedRooms[inputRoom]->GetName() <<
+			cout << "-You have successfully unlocked " << player.m_currentRoomPtr->m_unlockedRooms[inputRoom]->GetName() <<
 				" with your " << tempKeyPtr->GetName() << endl;
 			delete tempKeyPtr;
 			player.m_inventory[itemPosInInv] = new Item();
 			firstEmptyInvSlot = FindFirstEmptyInvSlot();
 		}
+		else if (player.m_currentRoomPtr->m_lockedRooms[inputRoom])
+		{
+			cout << "-You need a " << player.m_currentRoomPtr->m_lockedRooms[inputRoom]->GetKeyColourText() << " key to unlock this room.\n";
+		}
 	}
+	return;
 	break;
 	case ItemType::WeaponType:
 	{
@@ -350,13 +400,18 @@ void UseItem()
 		{
 			Weapon* tempWeaponPtr = (Weapon*)player.m_inventory[itemPosInInv];
 			EncounterRoom* tempEncounterRoomPtr = (EncounterRoom*)player.m_currentRoomPtr;
-			cout << "You attack with " << tempWeaponPtr->GetName() << " dealing " << tempWeaponPtr->GetWeaponDamage() << endl;
+			cout << "-You attack with " << tempWeaponPtr->GetName() << " dealing " << tempWeaponPtr->GetWeaponDamage() << endl;
 			tempEncounterRoomPtr->ReceiveDamage(tempWeaponPtr->GetWeaponDamage());
 			cout << "This group of rats are now down to " << ((tempEncounterRoomPtr->GetRatGroupHealth() >= 0) ? (tempEncounterRoomPtr->GetRatGroupHealth()) : (0)) << " health\n";
 			if (tempEncounterRoomPtr->GetRatGroupHealth() < 1)
 			{
 				tempEncounterRoomPtr->CompleteEncounter();
-				player.m_bInEncounter = false;
+			}
+			else
+			{
+				player.m_health -= tempEncounterRoomPtr->GetRatDamage();
+				cout << "The rats now attack you for " << tempEncounterRoomPtr->GetRatDamage() << " damage.\n" <<
+					"You are now at " << player.m_health << " health.\n";
 			}
 		}
 		else
@@ -364,7 +419,33 @@ void UseItem()
 			cout << "-You can only use weapons in combat\n";
 		}
 	}
+	return;
 	break;
+	}
+	inputItem = TextToLowerCase(inputItem);
+	if (inputItem == "punch")
+	{
+		if (player.m_bInEncounter)
+		{
+			EncounterRoom* tempEncounterRoomPtr = (EncounterRoom*)player.m_currentRoomPtr;
+			cout << "-Punch the rats for " << player.m_fistDamage << " damage\n";
+			tempEncounterRoomPtr->ReceiveDamage(player.m_fistDamage);
+			cout << "This group of rats are now down to " << ((tempEncounterRoomPtr->GetRatGroupHealth() >= 0) ? (tempEncounterRoomPtr->GetRatGroupHealth()) : (0)) << " health\n";
+			if (tempEncounterRoomPtr->GetRatGroupHealth() < 1)
+			{
+				tempEncounterRoomPtr->CompleteEncounter();
+			}
+			else
+			{
+				player.m_health -= tempEncounterRoomPtr->GetRatDamage();
+				cout << "The rats now attack you for " << tempEncounterRoomPtr->GetRatDamage() << " damage.\n" <<
+					"You are now at " << player.m_health << " health.\n";
+			}
+		}
+		else
+		{
+			cout << "-You can only punch things when in combat.\n";
+		}
 	}
 }
 
@@ -390,4 +471,12 @@ void ShowInventory()
 		}
 		cout << endl;
 	}
+}
+
+void ShowPlayerStats()
+{
+	cout << "-You currently have " << player.m_health << " health.\n" <<
+		"You are" << ((player.m_bInEncounter) ? (" ") : (" not ")) << "currently in combat.\n" <<
+		"These are the items in your inventory:\n";
+	ShowInventory();
 }

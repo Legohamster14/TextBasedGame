@@ -94,24 +94,49 @@ void Room::UnlockRoom(Room& room)
 	m_lockedRooms.erase(room.GetName());
 }
 
+std::string Room::GetKeyColourText()
+{
+	string tempString = "";
+	switch (m_keyToUnlock)
+	{
+	case KeyColour::Blue:
+		tempString = "blue";
+		break;
+	case KeyColour::Green:
+		tempString = "green";
+		break;
+	case KeyColour::Purple:
+		tempString = "purple";
+		break;
+	case KeyColour::Red:
+		tempString = "red";
+		break;
+	default:
+		tempString = "";
+		break;
+	}
+	return tempString;
+}
+
 //EncounterRoom
-void EncounterRoom::SetRatGroupHealth(int ratAmount)
+void EncounterRoom::SetRatGroupStats(int ratAmount)
 {
 	m_ratGroup.m_groupHealth *= ratAmount;
+	m_ratGroup.m_groupDamage *= ratAmount;
 }
 
 EncounterRoom::EncounterRoom() : Room()
 {
 	m_roomName = "DefaultName";
 	m_ratGroup.m_groupAmount = 1;
-	SetRatGroupHealth(m_ratGroup.m_groupAmount);
+	SetRatGroupStats(m_ratGroup.m_groupAmount);
 }
 
 EncounterRoom::EncounterRoom(string name, int ratAmount) : Room(name)
 {
 	m_roomName = name;
 	m_ratGroup.m_groupAmount = ratAmount;
-	SetRatGroupHealth(m_ratGroup.m_groupAmount);
+	SetRatGroupStats(m_ratGroup.m_groupAmount);
 }
 
 void EncounterRoom::OnEnter() const
@@ -139,6 +164,11 @@ void EncounterRoom::CompleteEncounter()
 int EncounterRoom::GetRatGroupHealth() const
 {
 	return m_ratGroup.m_groupHealth;
+}
+
+int EncounterRoom::GetRatDamage() const
+{
+	return m_ratGroup.m_groupDamage;
 }
 
 void EncounterRoom::ReceiveDamage(int damage)

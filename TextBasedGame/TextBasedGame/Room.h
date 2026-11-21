@@ -34,11 +34,13 @@ public:
 	void DisplayAllLockedRooms();
 	bool CanUnlockRoom(Room& lockedRoom, KeyColour colour);
 	void UnlockRoom(Room& room);
+	std::string GetKeyColourText();
 };
 
 struct RatGroup
 {
 	int m_groupHealth = 10;
+	int m_groupDamage = 1;
 	int m_groupAmount;
 };
 
@@ -47,7 +49,7 @@ class EncounterRoom : public Room
 private:
 	RatGroup m_ratGroup;
 	bool m_bEncounterCompleted = false;
-	void SetRatGroupHealth(int ratAmount);
+	void SetRatGroupStats(int ratAmount);
 public:
 	EncounterRoom();
 	EncounterRoom(string name, int ratAmount);
@@ -55,5 +57,6 @@ public:
 	bool GetEncounterCompleted() const;
 	void CompleteEncounter();
 	int GetRatGroupHealth() const;
+	int GetRatDamage() const;
 	void ReceiveDamage(int damage);
 };
