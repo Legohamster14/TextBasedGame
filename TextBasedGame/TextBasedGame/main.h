@@ -8,8 +8,9 @@ bool bPlayerQuitting = false;
 
 //Rooms ------
 Room* startingRoomPtr = new Room("Starting_Room");
-Room* loungePtr = new Room("Space_Room");
+Room* loungePtr = new Room("Lounge");
 Room* testRoomPtr = new Room("Locked_room");
+EncounterRoom* testRatRoom = new EncounterRoom("Rat_Nest", 3);
 Room* allRooms[] = { loungePtr, startingRoomPtr, testRoomPtr };
 
 //Player
@@ -43,6 +44,7 @@ HealthPotion* lesserPotion = new HealthPotion("Lesser_HealthPotion", 25);
 Weapon* sword = new Weapon("Sword", 25);
 Key* blueKey = new Key(KeyColour::Blue);
 Item* allItemTypes[] = { sword, lesserPotion, blueKey };
+MagicScroll* fireballScroll = new MagicScroll(ScrollType::Fireball);
 
 //Object types -----
 Object* chest = new Object(ObjectType::Chest, sword);

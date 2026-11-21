@@ -4,8 +4,9 @@
 void ConnectRooms()
 {
 	startingRoomPtr->AddAccessibleRoom(*loungePtr);
-	startingRoomPtr->AddLockedRoom(*testRoomPtr);
+	startingRoomPtr->AddLockedRoom(*testRoomPtr, KeyColour::Blue);
 	loungePtr->AddAccessibleRoom(*startingRoomPtr);
+	loungePtr->AddAccessibleRoom(*testRatRoom);
 }
 
 void SetUpRoomDescriptions()
@@ -33,10 +34,12 @@ void SpawnLoot()
 
 void OnStart()
 {
-	for (int i = 0; i < player.MAX_INV_SIZE; i++)
+	for (int i = 2; i < player.MAX_INV_SIZE; i++)
 	{
 		player.m_inventory[i] = new Item();
 	}
+	player.m_inventory[0] = new Weapon(sword);
+	player.m_inventory[1] = new MagicScroll(fireballScroll);
 	ConnectRooms();
 	SetUpRoomDescriptions();
 	SpawnLoot();
@@ -58,7 +61,7 @@ int main()
 	do
 	{
 		string inputCommand;
-		cout << '>';
+		cout << "What would you like to do\n>";
 		cin >> inputCommand;
 		inputCommand = TextToLowerCase(inputCommand);
 		if (commands[inputCommand])
@@ -131,6 +134,10 @@ string TextToLowerCase(string input)
 
 void EnterRoom()
 {
+	if (player.m_bInEncounter)
+	{
+		cout << "-You cannot leave the room while in combat\n";
+	}
 	ShowAllConnectedRooms();
 	cout << "Which room would you like to enter?\n>";
 	string inputRoom;
@@ -143,6 +150,11 @@ void EnterRoom()
 	else
 	{
 		cout << inputRoom << " is an unavailable room.\n";
+		return;
+	}
+	if ((EncounterRoom*)player.m_currentRoomPtr)
+	{
+		player.m_bInEncounter = true;
 	}
 }
 
@@ -159,7 +171,9 @@ void ShowAllCommands()
 		"-Exit - Exit the game.\n" <<
 		"-Show_Rooms - Shows all the connected rooms and whether they are locked or unlocked.\n" << 
 		"-Current_Room - Shows the current room you are in.\n" << 
-		"-Search - Shows you all the searchable items in the room you are currently in.\n";
+		"-Search - Shows you all the searchable objects in the room you are currently in.\n" << 
+		"-Inventory - Displays all the items in your inventory and any stats\n" <<
+		"-Use - Uses an item of your choosing from your invnetory\n";
 }
 
 void ShowAllConnectedRooms()
@@ -179,6 +193,10 @@ void ShowCurrentRoom()
 
 void SearchObject()
 {
+	if (player.m_bInEncounter)
+	{
+		cout << "-You cannot search while in combat\n";
+	}
 	if (player.m_bInventoryFull)
 	{
 		cout << "-Your inventory is full.\n";
@@ -193,9 +211,9 @@ void SearchObject()
 	cout << "-What do you want to search.\n";
 	for (int i = 0; i < player.m_currentRoomPtr->m_objects.size(); i++)
 	{
-		cout << player.m_currentRoomPtr->m_objects[i]->GetName() << ((i == (player.m_currentRoomPtr->m_objects.size() - 1)) ? ("") : (", "));
+		cout << i << ". " << player.m_currentRoomPtr->m_objects[i]->GetName() << endl;
 	}
-	cout << endl << ">";
+	cout << ">";
 	cin >> input;
 	Item* tempItemPtr = nullptr;
 	int searchedObjectIteration = -1;
@@ -261,21 +279,21 @@ void UseItem()
 	cout << "What would you like to use:\n>";
 	string inputItem;
 	cin >> inputItem;
-	Item* itemInUse = nullptr;
+	int itemPosInInv = -1;
 	for (int i = 0; i < player.MAX_INV_SIZE; i++)
 	{
 		if (player.m_inventory[i]->GetName() == inputItem)
 		{
-			itemInUse = player.m_inventory[i];
+			itemPosInInv = i;
 			break;
 		}
 	}
-	if (!itemInUse)
+	if (itemPosInInv < -1 || itemPosInInv > player.MAX_INV_SIZE)
 	{
-		cout << "\'" << inputItem << "\' is not in you inventory.\n";
+		cout << "\'" << inputItem << "\' is not in your inventory.\n";
 		return;
 	}
-	switch (itemInUse->GetItemType())
+	switch (player.m_inventory[itemPosInInv]->GetItemType())
 	{
 	case ItemType::DefaultItemType:
 	{
@@ -285,30 +303,65 @@ void UseItem()
 	}
 	case ItemType::PotionType:
 	{
-		HealthPotion* tempPotionPtr = (HealthPotion*)itemInUse;
-		cout << "You gain " << tempPotionPtr->GetHealthAmount() << " health";
+		HealthPotion* tempPotionPtr = (HealthPotion*)player.m_inventory[itemPosInInv];
+		cout << "-You gain " << tempPotionPtr->GetHealthAmount() << " health.\n";
 		player.m_health += tempPotionPtr->GetHealthAmount();
+		cout << "Your health is now at " << player.m_health << endl;
+		delete tempPotionPtr;
+		player.m_inventory[itemPosInInv] = new Item();
+		firstEmptyInvSlot = FindFirstEmptyInvSlot();
 	}
 	break;
 	case ItemType::MagicScrollType:
 	{
 		if (player.m_bInEncounter)
 		{
-			//MagicScroll* tempMagicScrollPtr = ()
+			MagicScroll* tempMagicScrollPtr = (MagicScroll*)player.m_inventory[itemPosInInv];
+		}
+		else
+		{
+			cout << "-You can only use magic scrolls in combat\n";
 		}
 	}
 	break;
 	case ItemType::KeyType:
 	{
-		Key* tempKeyPtr = (Key*)itemInUse;
+		Key* tempKeyPtr = (Key*)player.m_inventory[itemPosInInv];
 		cout << "Which room would you like to unlock:\n";
 		player.m_currentRoomPtr->DisplayAllLockedRooms();
+		cout << ">";
 		string inputRoom;
 		cin >> inputRoom;
 		if (player.m_currentRoomPtr->m_lockedRooms[inputRoom] && 
-			)
+			player.m_currentRoomPtr->CanUnlockRoom(*player.m_currentRoomPtr->m_lockedRooms[inputRoom], tempKeyPtr->GetKeyColour()))
 		{
-			
+			player.m_currentRoomPtr->UnlockRoom(*player.m_currentRoomPtr->m_lockedRooms[inputRoom]);
+			cout << "You have successfully unlocked " << player.m_currentRoomPtr->m_unlockedRooms[inputRoom]->GetName() <<
+				" with your " << tempKeyPtr->GetName() << endl;
+			delete tempKeyPtr;
+			player.m_inventory[itemPosInInv] = new Item();
+			firstEmptyInvSlot = FindFirstEmptyInvSlot();
+		}
+	}
+	break;
+	case ItemType::WeaponType:
+	{
+		if (player.m_bInEncounter)
+		{
+			Weapon* tempWeaponPtr = (Weapon*)player.m_inventory[itemPosInInv];
+			EncounterRoom* tempEncounterRoomPtr = (EncounterRoom*)player.m_currentRoomPtr;
+			cout << "You attack with " << tempWeaponPtr->GetName() << " dealing " << tempWeaponPtr->GetWeaponDamage() << endl;
+			tempEncounterRoomPtr->ReceiveDamage(tempWeaponPtr->GetWeaponDamage());
+			cout << "This group of rats are now down to " << ((tempEncounterRoomPtr->GetRatGroupHealth() >= 0) ? (tempEncounterRoomPtr->GetRatGroupHealth()) : (0)) << " health\n";
+			if (tempEncounterRoomPtr->GetRatGroupHealth() < 1)
+			{
+				tempEncounterRoomPtr->CompleteEncounter();
+				player.m_bInEncounter = false;
+			}
+		}
+		else
+		{
+			cout << "-You can only use weapons in combat\n";
 		}
 	}
 	break;

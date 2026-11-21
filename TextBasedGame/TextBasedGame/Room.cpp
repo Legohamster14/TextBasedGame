@@ -1,6 +1,11 @@
 #include "Room.h"
 #include <iostream>
 
+void Room::SetKeyColour(KeyColour keyColour)
+{
+	m_keyToUnlock = keyColour;
+}
+
 Room::Room()
 {
 	m_roomName = "DefaultName";
@@ -11,20 +16,14 @@ Room::Room(string roomName)
 	m_roomName = roomName;
 }
 
-Room::~Room()
-{
-	//for (int i = 0; i < m_objects.size(); i++)
-	//{
-	//	m_objects.pop_back();
-	//}
-}
+Room::~Room() {}
 
-string Room::GetName()
+string Room::GetName() const
 {
 	return m_roomName;
 }
 
-string Room::GetRoomDescription()
+string Room::GetRoomDescription() const
 {
 	return m_roomDescription;
 }
@@ -34,20 +33,24 @@ void Room::SetRoomDescription(string input)
 	m_roomDescription = input;
 }
 
-void Room::OnEnter()
+void Room::OnEnter() const
 {
 	std::cout << "-Entering: " << m_roomName << std::endl <<
 		m_roomDescription << std::endl;
 }
 
-void Room::AddAccessibleRoom(Room& room)
+void Room::AddAccessibleRoom(Room& room, bool bNewRoom)
 {
 	m_unlockedRooms[room.GetName()] = &room;
-	m_allConnectedRooms.push_back(&room);
+	if (bNewRoom)
+	{
+		m_allConnectedRooms.push_back(&room);
+	}
 }
 
-void Room::AddLockedRoom(Room& room)
+void Room::AddLockedRoom(Room& room, KeyColour keyColour)
 {
+	room.SetKeyColour(keyColour);
 	m_lockedRooms[room.GetName()] = &room;
 	m_allConnectedRooms.push_back(&room);
 }
@@ -71,7 +74,7 @@ void Room::RemoveSearchableObject(Object& object)
 	}
 }
 
-void Room::DisplayAllLockedRooms()
+void Room::DisplayAllLockedRooms() 
 {
 	for (int i = 0; i < m_allConnectedRooms.size(); i++)
 	{
@@ -79,7 +82,66 @@ void Room::DisplayAllLockedRooms()
 	}
 }
 
-bool Room::CanUnlockRoom(KeyColour colour)
+bool Room::CanUnlockRoom(Room& lockedRoom, KeyColour colour) 
 {
-	return false;
+	return ((colour == lockedRoom.m_keyToUnlock &&
+		m_lockedRooms[lockedRoom.GetName()]) ? (true) : (false));
+}
+
+void Room::UnlockRoom(Room& room)
+{
+	AddAccessibleRoom(*m_lockedRooms[room.GetName()]);
+	m_lockedRooms.erase(room.GetName());
+}
+
+//EncounterRoom
+void EncounterRoom::SetRatGroupHealth(int ratAmount)
+{
+	m_ratGroup.m_groupHealth *= ratAmount;
+}
+
+EncounterRoom::EncounterRoom() : Room()
+{
+	m_roomName = "DefaultName";
+	m_ratGroup.m_groupAmount = 1;
+	SetRatGroupHealth(m_ratGroup.m_groupAmount);
+}
+
+EncounterRoom::EncounterRoom(string name, int ratAmount) : Room(name)
+{
+	m_roomName = name;
+	m_ratGroup.m_groupAmount = ratAmount;
+	SetRatGroupHealth(m_ratGroup.m_groupAmount);
+}
+
+void EncounterRoom::OnEnter() const
+{
+	std::cout << "-Entering: " << m_roomName << std::endl <<
+		m_roomDescription << std::endl;
+	if (!m_bEncounterCompleted)
+	{
+		cout << "There are " << m_ratGroup.m_groupAmount << " rats in here, they have a total health pool of " << m_ratGroup.m_groupHealth << endl;
+	}
+}
+
+bool EncounterRoom::GetEncounterCompleted() const
+{
+	return m_bEncounterCompleted;
+}
+
+void EncounterRoom::CompleteEncounter()
+{
+	m_bEncounterCompleted = true;
+	cout << "You have successfully slain this group of " << m_ratGroup.m_groupAmount << " rats\n";
+	m_ratGroup.m_groupHealth = 0;
+}
+
+int EncounterRoom::GetRatGroupHealth() const
+{
+	return m_ratGroup.m_groupHealth;
+}
+
+void EncounterRoom::ReceiveDamage(int damage)
+{
+	m_ratGroup.m_groupHealth -= damage;
 }
