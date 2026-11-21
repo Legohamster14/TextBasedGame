@@ -54,7 +54,7 @@ public:
 
 enum KeyColour
 {
-	Blank, Red, Blue, Purple, Green
+	Blank, Red, Blue, Purple
 };
 
 class Key : public Item

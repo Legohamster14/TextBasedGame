@@ -134,21 +134,17 @@ Key::Key(KeyColour colour)
 	m_itemType = ItemType::KeyType;
 	switch (colour)
 	{
-	case Red:
+	case KeyColour::Red:
 		m_itemName = "Red_Key";
 		m_keyColour = KeyColour::Red;
 		break;
-	case Blue:
+	case KeyColour::Blue:
 		m_itemName = "Blue_Key";
 		m_keyColour = KeyColour::Blue;
 		break;
-	case Purple:
+	case KeyColour::Purple:
 		m_itemName = "Purple_Key";
 		m_keyColour = KeyColour::Purple;
-		break;
-	case Green:
-		m_itemName = "Green_Key";
-		m_keyColour = KeyColour::Green;
 		break;
 	}
 }

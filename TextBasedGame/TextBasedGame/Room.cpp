@@ -102,9 +102,6 @@ std::string Room::GetKeyColourText()
 	case KeyColour::Blue:
 		tempString = "blue";
 		break;
-	case KeyColour::Green:
-		tempString = "green";
-		break;
 	case KeyColour::Purple:
 		tempString = "purple";
 		break;

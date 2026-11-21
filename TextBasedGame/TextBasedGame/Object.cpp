@@ -12,11 +12,19 @@ Object::Object(ObjectType type, Item* item)
 	{
 	case Chest:
 		m_objectName = "Chest";
-		m_searchText = "You look in ";
+		m_searchText = "You look in the ";
 		break;
-	case ObjectType::Cupboard:
-		m_objectName = "Cupboard";
-		m_searchText = "You look in ";
+	case ObjectType::Cabinet:
+		m_objectName = "Cabinet";
+		m_searchText = "You look in the ";
+		break;
+	case ObjectType::Carpet:
+		m_objectName = "Carpet";
+		m_searchText = "You look under the ";
+		break;
+	case ObjectType::Table:
+		m_objectName = "Table";
+		m_searchText = "You look on the ";
 		break;
 	}
 	switch (item->GetItemType())
@@ -65,7 +73,6 @@ Object::Object(Object* object)
 
 Object::~Object()
 {
-	//delete m_hiddenItem;
 }
 
 Item* Object::Search()

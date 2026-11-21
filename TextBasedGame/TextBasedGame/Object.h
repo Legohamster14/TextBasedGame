@@ -3,7 +3,7 @@
 
 enum ObjectType
 {
-	Chest, Table, Carpet, Cupboard
+	Chest, Table, Carpet, Cabinet
 };
 
 class Object
