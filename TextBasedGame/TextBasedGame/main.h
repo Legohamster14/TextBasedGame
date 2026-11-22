@@ -46,7 +46,8 @@ bool CompletedAllEncounters();
 void PlayerDeath();
 
 //commands -----
-std::map <string, std::function<void()>> commands;
+std::map <string, std::function<void()>> commands = { {"enter", EnterRoom }, {"exit", ExitGame }, {"help", ShowAllCommands }, {"show_rooms", ShowAllConnectedRooms },
+	{"current_room", ShowCurrentRoom }, {"search", SearchObject }, {"use", UseItem }, {"inventory", ShowInventory }, {"stats", ShowPlayerStats }, {"drop", DropItem } };
 void EnterRoom();
 void ExitGame();
 void ShowAllCommands();

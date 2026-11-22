@@ -1,15 +1,15 @@
-Entrance
-Kitchen
-Study
-Secret Treasure Room
-Dining Room
-Trophy Room
-Stairs
-Treasure Room
-Barracks
-Relaxation Room
-Armory
-Wine Cellar
-Burial Room
-Summoning Room
-Rat Breeding Room
+As you enter you see to exits from this room, both the doors look unlock. Off to the side is a table which may hold something useful for this dungeon.
+There are two exits from this room and both look unlocked. There is a cabinet left slightly ajar with something giving off a glint inside, and it seems like there is something useful on the table.
+There are three exits from this room, however one of them seem to be locked. The lock looks to have a strange blue symbol. A table in here seems to have something useful.
+The only way out of this room is back the way you came. However there is a chest and a cabinet in here.
+There are four exits from this room, all unlocked. There are probably useful items in here.
+There are two exits from room. There is a large chest at the back of the room.
+There is an exit at both the top and bottom of the stairs, the door at the top seems locked and next to the lock there is a strange purple symbol.
+The only way out of this room is back the way you came. There is a chest in this room.
+There are three exits from this room. There seems to be something that could prove useful on one of the tables in here.
+The only way out of this room is back the way you came. There is a cabinet in the corner.
+There are two exits from this room, however one is locked and you can hear rats on the other side. Next to the lock there is a strange red symbol. There is also a chest off to the side.
+There are two exits from this room, however there sound to be more rats deeper in. There is also a chest hidden in a corner.
+There are two exits from this room, however there sound to be more rats deeper in. In one of the half buried graves there seems to be a chest.
+There are two exits from this room, however there sound to be more rats deeper in.
+This is one of the places that The Rat terrors have been spawning from. You must kill all the rats to try to slow and maybe stop there endless wave of evil.

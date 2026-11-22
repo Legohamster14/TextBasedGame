@@ -49,7 +49,7 @@ void SetUpRoomDescriptions()
 		descriptionFile.close();
 		return;
 	}
-
+	//goes through every line of the file and gives the rooms their descripton
 	getline(descriptionFile, tempString);
 	startingRoomPtr->SetRoomDescription(tempString);
 	getline(descriptionFile, tempString);
@@ -84,7 +84,7 @@ void SetUpRoomDescriptions()
 	descriptionFile.close();
 }
 
-void SpawnLoot()
+void SpawnLoot() //Adds all the objects with there loot to each room
 {
 	startingRoomPtr->AddSearchableObject(*startTable);
 	startingRoomPtr->AddSearchableObject(*emptyCarpet);
@@ -102,7 +102,7 @@ void SpawnLoot()
 	diningRoomPtr->AddSearchableObject(*mediumPotionCabinet);
 	diningRoomPtr->AddSearchableObject(*emptyTable);
 	diningRoomPtr->AddSearchableObject(*emptyCarpet);
-	kitchenRoomPtr->AddSearchableObject(*emptyTable);
+	kitchenRoomPtr->AddSearchableObject(*lesserPotionTable);
 	barracksPtr->AddSearchableObject(*emptyCarpet);
 	armoryPtr->AddSearchableObject(*emptyTable);
 	armoryPtr->AddSearchableObject(*emptyCabinet);
@@ -115,16 +115,6 @@ void SpawnLoot()
 void OnStart()
 {
 	cout << "\x1b]0; " << "The Ratungeon" << "\x1b\\";
-	commands["exit"] = ExitGame;
-	commands["help"] = ShowAllCommands;
-	commands["enter"] = EnterRoom;
-	commands["show_rooms"] = ShowAllConnectedRooms;
-	commands["current_room"] = ShowCurrentRoom;
-	commands["search"] = SearchObject;
-	commands["use"] = UseItem;
-	commands["inventory"] = ShowInventory;
-	commands["stats"] = ShowPlayerStats;
-	commands["drop"] = DropItem;
 	for (int i = 0; i < player.MAX_INV_SIZE; i++)
 	{
 		player.m_inventory[i] = new Item();
