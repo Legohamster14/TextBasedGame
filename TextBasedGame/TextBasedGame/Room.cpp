@@ -116,7 +116,7 @@ std::string Room::GetKeyColourText()
 }
 
 //EncounterRoom
-void EncounterRoom::SetRatGroupStats(int ratAmount)
+void EncounterRoom::SetRatGroupStats(int ratAmount) // set rat group damage and health based on the size
 {
 	m_ratGroup.m_groupHealth *= ratAmount;
 	m_ratGroup.m_groupDamage *= ratAmount;

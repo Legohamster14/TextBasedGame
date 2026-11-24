@@ -27,7 +27,7 @@ Object::Object(ObjectType type, Item* item)
 		m_searchText = "You look on the ";
 		break;
 	}
-	switch (item->GetItemType())
+	switch (item->GetItemType()) // stores item based on class
 	{
 	case ItemType::DefaultItemType:
 	{
